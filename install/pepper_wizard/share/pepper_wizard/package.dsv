@@ -1,0 +1,6 @@
+source;share/pepper_wizard/hook/pythonpath.ps1
+source;share/pepper_wizard/hook/pythonpath.dsv
+source;share/pepper_wizard/hook/pythonpath.sh
+source;share/pepper_wizard/hook/ament_prefix_path.ps1
+source;share/pepper_wizard/hook/ament_prefix_path.dsv
+source;share/pepper_wizard/hook/ament_prefix_path.sh
