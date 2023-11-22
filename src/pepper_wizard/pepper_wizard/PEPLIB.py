@@ -3,7 +3,7 @@ import socket
 import serial
 import serial.tools.list_ports
 import time
-
+import logging
 
 
 class JSON_Handler:
@@ -145,98 +145,45 @@ class TCP_Server:
         return self.data_string
     
 
-class serial2arduino:
+class TCP_client:
     """
-    Class for establishing serial communication between Python script and an Arduino. 
-    Takes parameters:
-       serial_port - the COM port connection with USB)
-       baud_rate - defaults 9600
-       bytesize - Number of databits transmitted in each byte of serial data.
-       Debug - bool print statements (defaults False)
+    Creates a TCP client that connects to the specified host and port and sends data to the server.
     """
 
-    def __init__(self, serial_port, baud_rate=9600, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, Debug=False):
+    def __init__(self, host, port, log_debug=True):
+        # Initialize variables
+        self.HOST = host
+        self.PORT = port
+        self.LOG_DEBUG = log_debug
 
-         # init variables
-        self.SERIAL_PORT = serial_port
-        self.BAUD_RATE = baud_rate
-        self.BYTESIZE = eval(bytesize)
-        self.PARITY = eval(parity)
-        self.STOPBITS = eval(stopbits)
-        self.DEBUG = Debug
+        self.logger = logging.getLogger()
 
-        if self.DEBUG:
-            # List available ports
-            ports = serial.tools.list_ports.comports()
+        # Create a socket object
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-            for port, desc, hwid in sorted(ports):
-                print(f"DEBUG @ script 'EXOLIB.py' class 'serial2arduino' function '__init__'; SYSTEM MESSAGE: List of avaible ports:\n{port}: {desc} [{hwid}]")
+        self.connect_to_server()
+
+    def connect_to_server(self):
+        # Connect to the server
+        try:
+            self.socket.connect((self.HOST, self.PORT))
+            self.logger.info(f"Connected to server @ HOST:PORT {self.HOST}:{self.PORT}")
+
+        except Exception as e:
+            self.logger.error(f"Failed to connect to server with error: {e}")
 
 
-    def establish_connection(self):
-        """
-        Function for handling establishing connection between Python pyserial and Arduino.
-        """
-        
-        # Attempt establishing a connection with the arduino until success.
-        while True:
+    def send_data(self, data: str):        
+        try:
+            # Send the message to the server
+            self.socket.sendall(data.encode())
 
-            try:
+            if data.lower() == '/disconnect':
+                self.logger.info("Disconnecting")
 
-                # Open a serial connection with the Arduino
-                connection = serial.Serial(self.SERIAL_PORT, self.BAUD_RATE, self.BYTESIZE, self.PARITY, self.STOPBITS, timeout=2)
-
-                # If the DEBUG flag is raised, we print data to terminal
-                if self.DEBUG:
-                    print("DEBUG @ script 'EXOLIB.py' class 'serial2arduino' function 'establish_connection'; SYSTEM MESSAGE: Waiting 2 (two) seconds for Arduino to initialize.")
-                
-                # Wait for the Arduino to initialize
                 time.sleep(2)
 
-                if connection:
-                    return connection
-            
-            # Except all errors
-            except Exception as e:
-                if self.DEBUG:
-                    print(f"ERROR @ script 'EXOLIB.py' class 'serial2arduino' function 'establish_connection'; SYSTEM MESSAGE: Failed conencting to arduino at serial port '{self.SERIAL_PORT}' with error: {e}")
-                
-                
+                quit()
 
-    def send_data(self, arduino, data):
-        """
-        Function for handling sending of data across serial connection established in function 'establish_connection'.
-        The data that is to be send must be send as a string ending with a defined seperator matching with what is defined on the arduino.
-         - Eg. 'Example_' where the underscore is the seperator. This way the arduino can interpret n amount of bytes as a whole, instead of interpreting them individually.
-        """
-
-        # If the DEBUG flag is raised, we print data to terminal
-        if self.DEBUG:
-            print(f"DEBUG @ script 'EXOLIB.py' class 'serial2arduino' function 'send_data'; VARIABLE 'data': {data}")
-    
-        # Encode data as encoded_data
-        encoded_data = data.encode()
-
-        # If the DEBUG flag is raised, we print data to terminal
-        if self.DEBUG:
-            print(f"DEBUG @ script 'EXOLIB.py' class 'serial2arduino' function 'send_data'; VARIABLE 'encoded_data': {encoded_data}")
-
-        # Send encoded_data Arduino
-        arduino.write(encoded_data)
-
-
-    def receive_data(self, arduino):
-        """
-        Function for handling reception of data from the Arduino over the established serial connection.
-        """
-
-        if self.DEBUG:
-            print("DEBUG @ script 'EXOLIB.py' class 'serial2arduino' function 'receive_data'; SYSTEM MESSAGE: Receiving data from Arduino.")
-
-        # Read the data from the Arduino
-        received_data = arduino.readline().decode().strip()
-
-        if self.DEBUG:
-            print(f"DEBUG @ script 'EXOLIB.py' class 'serial2arduino' function 'receive_data'; Variable 'received_data': {received_data}")
-
-        return received_data
+        except Exception as e:
+            self.logger.error(f"Failed to send message with error: {e}")

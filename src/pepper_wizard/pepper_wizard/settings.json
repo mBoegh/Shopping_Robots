@@ -1,0 +1,21 @@
+{
+
+
+    "client": 
+    {
+        "HOST": "192.168.1.5",
+        "PORT": 20001,
+        "LOG_DEBUG": true
+    },
+
+
+    "gui": 
+    {
+        "TIMER_PERIOD": 0.1,
+        "LOG_DEBUG": true,
+        "LOG_LEVEL": "DEBUG"
+    }
+
+    
+}
+  
