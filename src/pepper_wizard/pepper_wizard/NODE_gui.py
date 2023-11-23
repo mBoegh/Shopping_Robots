@@ -225,14 +225,14 @@ class Speech_Menu(CTkToplevel):
         label.grid(row=2, column=0, padx=10, pady=5)
 
         self.entry = CTkEntry(self,
-            placeholder_text="",
+            placeholder_text="say something",
             height=50,
-            width=200,
+            width=400,
             font=("Helvetica", 18),
             corner_radius=50,
-            text_color="green",
-            placeholder_text_color="darkblue",
-            fg_color=("blue", "lightblue"),  # outer, inner
+            text_color="black",
+            placeholder_text_color="grey",
+            fg_color=("system", "white"),  # outer, inner
             state="normal",
         )
         self.entry.grid(row=2, column=0, padx=10, pady=5)
