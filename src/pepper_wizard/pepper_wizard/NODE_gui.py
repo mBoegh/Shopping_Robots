@@ -30,7 +30,6 @@ class Gui(Node):
         # Initialising variables
         self.TIMER_PERIOD = timer_period
         self.LOG_DEBUG = log_debug
-        self.toggle_EEG_parameter = False
 
         # Initialising the 'Node' class, from which this class is inheriting, with argument 'node_name'
         super().__init__('gui')
@@ -151,7 +150,7 @@ class Animations_Menu(CTkToplevel):
         self.exit_button = CTkButton(self, text="Exit Button", command= exit_button_event)
         self.exit_button.grid(row= 1, column= 0, padx= 10, pady= 5)
 
-        self.dance_disco_button = CTkButton(self, text="Dance - Disco", command= command("/dance-disco"))
+        self.dance_disco_button = CTkButton(self, text="Dance - Disco", command= lambda: command("/dance-disco"))
         self.dance_disco_button.grid(row= 2, column= 0, padx= 10, pady= 5)
 
 
@@ -180,66 +179,71 @@ class System_Menu(CTkToplevel):
         self.exit_button.grid(row= 1, column= 0, padx= 10, pady= 5)
 
         # Initializes the buttons for manually controlling the exo angle
-        self.disconnect_button = CTkButton(self, text="Disconnect", command= command("/disconnect"))
+        self.disconnect_button = CTkButton(self, text="Disconnect", command= lambda: command("/disconnect"))
         self.disconnect_button.grid(row= 2, column= 0, padx= 10, pady= 5)
                     
          # Initializes the buttons for manually controlling the exo angle
-        self.reboot_button = CTkButton(self, text="Reboot", command= command("/reboot"))
+        self.reboot_button = CTkButton(self, text="Reboot", command= lambda: command("/reboot"))
         self.reboot_button.grid(row= 2, column= 1, padx= 10, pady= 5)
 
         # Initializes the buttons for manually controlling the exo angle
-        self.shutdown_button = CTkButton(self, text="Shutdown", command= command("/shutdown"))
+        self.shutdown_button = CTkButton(self, text="Shutdown", command= lambda: command("/shutdown"))
         self.shutdown_button.grid(row= 2, column= 2, padx= 10, pady= 5)
 
 
 
 class Speech_Menu(CTkToplevel):
-
     def __init__(self):
         CTkToplevel.__init__(self)
-        self.geometry("400x300") # Set the dimensions of the debug window
-        self.title("System Menu")
-    
-        # Destroy the Debug menu window, ie close the window
-        def exit_button_event(): self.destroy()
-        
+        self.geometry("400x300")
+        self.title("Speech Menu")
+
+        def exit_button_event(): 
+            self.destroy()
+
         def command(command: str):
             msg = String()
             msg.data = command
             gui.command_publisher.publish(msg)
 
-        def submit():
-            value = entry.get()
-            command(value)
-
         def clear():
-            entry.configure(state="normal")
-            entry.delete(0, END)
+            self.entry.delete(0, END)
+
+        def submit():
+            value = self.entry.get()
+            command(value)
+            clear()
+
 
         self.speech_menu_label = CTkLabel(self, text="Speech Menu")
-        self.speech_menu_label.grid(row=0, column= 0, padx= 10, pady= 5)
+        self.speech_menu_label.grid(row=0, column=0, padx=10, pady=5)
 
-        self.exit_button = CTkButton(self, text="Exit Button", command= exit_button_event)
-        self.exit_button.grid(row= 1, column= 0, padx= 10, pady= 5)
+        self.exit_button = CTkButton(self, text="Exit Button", command=exit_button_event)
+        self.exit_button.grid(row=1, column=0, padx=10, pady=5)
 
         label = CTkLabel(self, text="", font=("Helvetica", 24))
-        label.grid(row= 2, column= 0, padx= 10, pady= 5)
+        label.grid(row=2, column=0, padx=10, pady=5)
 
-        entry = CTkEntry(self, 
-            placeholder_text="Enter Your Name",
+        self.entry = CTkEntry(self,
+            placeholder_text="",
             height=50,
             width=200,
             font=("Helvetica", 18),
             corner_radius=50,
             text_color="green",
             placeholder_text_color="darkblue",
-            fg_color=("blue","lightblue"),  # outer, inner
+            fg_color=("blue", "lightblue"),  # outer, inner
             state="normal",
         )
-        entry.grid(row= 2, column= 0, padx= 10, pady= 5)
+        self.entry.grid(row=2, column=0, padx=10, pady=5)
 
-        submit_button = CTkButton(self, text="Submit", command= submit())
-        submit_button.grid(row= 3, column= 0, padx= 10, pady= 5)
+        submit_button = CTkButton(self, text="Submit", command=submit)
+        submit_button.grid(row=3, column=0, padx=10, pady=5)
+
+        # Bind the Enter key to the submit method
+        self.entry.bind("<Return>", lambda event: submit())
+
+
 
 
 
